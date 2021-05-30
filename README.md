@@ -113,7 +113,7 @@ For this setup, virtual hosts will be used. It is a bit difficult to setup but i
     - The final command will look something like this.
         >mklink /D "C:\xampp\htdocs\growth"  "C:\github\growth"   
     - If done correctly, there should be a new folder named `growth` on XAMPP's htdocs folder that when opened will go to the project's sources.
-4. Open the `httpd.conf` file located on `<xampp root folder>\apache\conf` using a text editor. Search for the line `Listen 80`. Add a line `Listen 8080` below it. The line `Listen 80` may be deleted or left on its own.
+4. Open the `httpd.conf` file located on `<xampp root folder>\apache\conf` using a text editor. Search for the line `Listen 80`. Add a line `Listen 8080` below it.
 5. Launch XAMPP and start the Apache module. Laravel's default homepage can now be accessed on `http://localhost:8080/`.      
 * There are sometimes errors when trying to access Laravel's default homepage. To solve these errors, open a _command prompt window_ on the project's root folder and try running the below commands in order.
     >php artisan view:clear   
