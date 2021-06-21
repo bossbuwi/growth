@@ -18,7 +18,7 @@ class CreateZonesTable extends Migration
             $table->unsignedBigInteger('system_id');
             $table->string('zone_name');
             $table->string('zone_prefix');
-            $table->unique(['system_id', 'zone_name']);
+            $table->unique(['system_id', 'zone_prefix']);
             $table->string('created_by');
             $table->string('last_modified_by');
             $table->foreign('system_id')->references('id')->on('systems');

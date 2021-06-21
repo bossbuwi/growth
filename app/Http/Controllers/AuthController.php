@@ -25,7 +25,7 @@ class AuthController extends Controller
      * @return void
      */
     public function __construct() {
-        $this->middleware('auth:api', ['except' => ['login', 'autologin', 'noAccess']]);
+        $this->middleware('auth:api', ['except' => ['login', 'autologin', 'noAccess', 'register']]);
     }
 
     public function noAccess() {
@@ -139,10 +139,11 @@ class AuthController extends Controller
         if($validator->fails()){
             return response()->json($validator->errors()->toJson(), 400);
         }
-
+        $role = Role::where('user', true)->first();
         $user = new User();
         $user->username = $request->input('username');
         $user->password = bcrypt($request->input('password'));
+        $user->role_id = $role->id;
         $user->save();
 
         return response()->json([
