@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+use App\Models\EventsHistory;
 use App\Models\Eventtype;
 use App\Models\System;
 use App\Models\Zone;
@@ -20,6 +21,11 @@ class Event extends Model
     public function eventtypes()
     {
         return $this->belongsToMany(Eventtype::class);
+    }
+
+    public function history()
+    {
+        return $this->hasMany(EventsHistory::class);
     }
 
     public function system()

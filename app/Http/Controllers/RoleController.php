@@ -1,5 +1,5 @@
 <?php
-//done
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -10,17 +10,21 @@ use App\Http\Resources\Role\RoleCollection;
 use App\Http\Resources\Role\RoleResource;
 use App\Http\Resources\User\UserCollection;
 
+
 class RoleController extends Controller
 {
     /**
      * Return all roles.
      */
-    public function index() {
+    public function index(Request $request) {
         $roles = Role::all();
         return new RoleCollection($roles);
     }
 
-    public function showRole($name) {
+    /**
+     * Returns a specific role using its role name.
+     */
+    public function showRole($name, Request $request) {
         try {
             $role = Role::where('role', $name)->firstOrFail();
             return new RoleResource($role);
@@ -29,7 +33,10 @@ class RoleController extends Controller
         }
     }
 
-    public function showUsersWithRole($name) {
+    /**
+     * Returns all users under a specific role.
+     */
+    public function showUsersWithRole($name, Request $request) {
         try {
             $role = Role::where('role', $name)->firstOrFail();
             $users = $role->users;

@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -14,14 +13,22 @@ use App\Models\System;
 use App\Http\Resources\System\SystemResource;
 use App\Http\Resources\System\SystemCollection;
 use App\Models\Version;
+use App\Http\Resources\Zone\ZoneCollection;
+
 
 class SystemController extends Controller
 {
+    /**
+     * Returns all systems.
+     */
     public function index(Request $request) {
         $systems = System::all();
         return new SystemCollection($systems);
     }
 
+    /**
+     * Returns a specific system using its id.
+     */
     public function showSystem($id, Request $request) {
         try {
             $system = System::where('id', $id)->firstOrFail();
@@ -32,7 +39,20 @@ class SystemController extends Controller
     }
 
     /**
-     * Creates a new record.
+     * Returns all zones contained in a specific system.
+     */
+    public function showZonesOnSystem($id, Request $request) {
+        try {
+            $system = System::where('id', $id)->firstOrFail();
+            $zones = $system->zones;
+            return new ZoneCollection($zones);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['error' => 'System not found.'], 404);
+        }
+    }
+
+    /**
+     * Creates a new system.
      */
     public function createSystem(Request $request) {
         $validator = Validator::make($request->all(), [
@@ -98,8 +118,7 @@ class SystemController extends Controller
     }
 
     /**
-     * Edits an existing record. A non-blank 'name' key
-     * is required to execute the function.
+     * Edits an existing system.
      */
     public function editSystem($id, Request $request) {
         $validator = Validator::make($request->all(), [
@@ -163,6 +182,9 @@ class SystemController extends Controller
         }
     }
 
+    /**
+     * Deletes a specific system.
+     */
     public function deleteSystem($id, Request $request) {
         $superuser = auth()->user()->role->superuser;
 
@@ -190,7 +212,10 @@ class SystemController extends Controller
         }
     }
 
+    /**
+     * Change a system's password.
+     */
     public function changeSystemPassword() {
-
+        return response()->json(['error' => 'Requesting user does not have enough authority.'], 401);
     }
 }

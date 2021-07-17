@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Resources\Eventtype;
+namespace App\Http\Resources\Rule;
 
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
-class EventtypeCollection extends ResourceCollection
+class RuleCollection extends ResourceCollection
 {
     /**
      * Transform the resource collection into an array.

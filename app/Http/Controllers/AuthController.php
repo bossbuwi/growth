@@ -1,12 +1,12 @@
 <?php
-//done
 namespace App\Http\Controllers;
-use Illuminate\Http\Request;
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Cookie;
+
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -25,9 +25,12 @@ class AuthController extends Controller
      * @return void
      */
     public function __construct() {
-        $this->middleware('auth:api', ['except' => ['login', 'autologin', 'noAccess', 'register']]);
+        $this->middleware('auth:api', ['except' => ['login', 'autologin', 'autologinNotSecure', 'noAccess', 'register']]);
     }
 
+    /**
+     * Placeholder method where unauthorized users would be redirected to.
+     */
     public function noAccess() {
         return response()->json(['error' => 'Please login to access the resource.'], 401);
     }
@@ -38,17 +41,57 @@ class AuthController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function autologin(Request $request) {
-        $cookie = $request->cookie(config('properties.jwt_name'));
-        $payload = JWTAuth::setToken($cookie)->getPayload();
-        $parsedPayload = json_decode(json_encode($payload), true);
-        $userId = $parsedPayload['id'];
-        $username = $parsedPayload['username'];
+        try {
+            $cookie = $request->cookie(config('properties.jwt_name'));
+            if (empty($cookie)) {
+                return false;
+            }
+            $payload = JWTAuth::setToken($cookie)->getPayload();
+            auth()->invalidate();
+            $parsedPayload = json_decode(json_encode($payload), true);
+            $userId = $parsedPayload['sub'];
+            $username = $parsedPayload['username'];
 
-        if (User::where('id', $userId)->where('username', $username)->exists()) {
-            $user = User::where('id', $userId)->where('username', $username)->first();
-            Auth::login($user);
+            if (User::where('id', $userId)->where('username', $username)->exists()) {
+                $user = User::where('id', $userId)->where('username', $username)->first();
+                Auth::login($user);
+                $token = JWTAuth::fromUser($user);
+                return $this->createNewToken($token);
+            } else {
+                return response()->json(['error' => 'Unauthorized credentials.'], 401);
+            }
+        } catch (\Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
+            return response()->json(['message' => 'Token expired. Please log in again.'], 401);
+        } catch (\Tymon\JWTAuth\Exceptions\TokenBlacklistedException $e) {
+            return response()->json(['message' => 'Token blacklisted. Please log in again.'], 401);
         }
-        return response()->json(auth()->user());
+    }
+
+    public function autologinNotSecure(Request $request) {
+        try {
+            $cookie = $request->token;
+            if (empty($cookie)) {
+                return response()->json(['notice' => 'No saved credentials. Please login manually.'], 404);
+            }
+            $payload = JWTAuth::setToken($cookie)->getPayload();
+            auth()->invalidate();
+            $parsedPayload = json_decode(json_encode($payload), true);
+            $userId = $parsedPayload['sub'];
+            $username = $parsedPayload['username'];
+
+            if (User::where('id', $userId)->where('username', $username)->exists()) {
+                $user = User::where('id', $userId)->where('username', $username)->first();
+                Auth::login($user);
+                $token = JWTAuth::fromUser($user);
+                return $this->createNewToken($token);
+            } else {
+                return response()->json(['error' => 'Unauthorized credentials.'], 401);
+            }
+        } catch (\Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
+            return response()->json(['message' => 'Token expired. Please log in again.'], 401);
+        } catch (\Tymon\JWTAuth\Exceptions\TokenBlacklistedException $e) {
+            return response()->json(['message' => 'Token blacklisted. Please log in again.'], 401);
+        }
     }
 
     /**
@@ -126,7 +169,8 @@ class AuthController extends Controller
     }
 
     /**
-     * Register a User.
+     * Register a user. This is a backdoor method that is used only
+     * for testing and must be disabled in production.
      *
      * @return \Illuminate\Http\JsonResponse
      */
@@ -160,6 +204,7 @@ class AuthController extends Controller
      */
     public function logout() {
         auth()->logout();
+        auth()->invalidate();
         return response()->json([
             'message' => 'User successfully signed out.'
         ])->withCookie(Cookie::forget(config('properties.jwt_name')));

@@ -1,5 +1,4 @@
 <?php
-//needs to show event types based on role
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -13,14 +12,33 @@ use App\Http\Resources\Eventtype\EventtypeResource;
 use App\Http\Resources\Eventtype\EventtypeCollection;
 use App\Models\Role;
 
+
 class EventtypeController extends Controller
 {
-    public function index() {
-        $eventTypes = Eventtype::all();
-        return new EventtypeCollection($eventTypes);
+    /**
+     * Returns all event types. If a non blank key "role" is included
+     * in the request, it returns all event types that the role has
+     * access to.
+     */
+    public function index(Request $request) {
+        if ($request->filled('role')) {
+            try {
+                $role = Role::where('role', $request->input('role'))->firstOrFail();
+                $eventTypes = $role->eventtypes;
+                return new EventtypeCollection($eventTypes);
+            } catch (ModelNotFoundException $e) {
+                return response()->json(['error' => 'Role not found.'], 404);
+            }
+        } else {
+            $eventTypes = Eventtype::all();
+            return new EventtypeCollection($eventTypes);
+        }
     }
 
-    public function showEventType($eventCode) {
+    /**
+     * Returns a specific event type using its event code.
+     */
+    public function showEventType($eventCode, Request $request) {
         try {
             $eventType = Eventtype::where('event_code', $eventCode)->firstOrFail();
             return new EventtypeResource($eventType);
@@ -29,6 +47,10 @@ class EventtypeController extends Controller
         }
     }
 
+    /**
+     * Creates a new event type. A user must have superuser authority
+     * in order to access the method.
+     */
     public function createEventType(Request $request) {
         $validator = Validator::make($request->all(), [
             'eventCode' => 'required',
@@ -75,6 +97,10 @@ class EventtypeController extends Controller
         }
     }
 
+    /**
+     * Edits an existing event type using its event code. A user
+     * must have superuser authority to access the method.
+     */
     public function editEventType($eventCode, Request $request) {
         $validator = Validator::make($request->all(), [
             'eventCode' => 'required',
@@ -110,6 +136,10 @@ class EventtypeController extends Controller
         }
     }
 
+    /**
+     * Deletes an existing event type using its event code. A user must
+     * have superuser authority to access the method.
+     */
     public function deleteEventType($eventCode, Request $request) {
         $superuser = auth()->user()->role->superuser;
 
@@ -135,7 +165,11 @@ class EventtypeController extends Controller
         }
     }
 
-    public function assignRoleToEventType($eventCode, $role) {
+    /**
+     * Gives a role access to an event type. User must have superuser
+     * authority to access the method.
+     */
+    public function assignRoleToEventType($eventCode, $role, Request $request) {
         $superuser = auth()->user()->role->superuser;
 
         if ($superuser == true) {
@@ -158,6 +192,10 @@ class EventtypeController extends Controller
         }
     }
 
+    /**
+     * Removes a role access to an event type. The user must have
+     * superuser authority to access the method.
+     */
     public function removeRoleFromEventType($eventCode, $role) {
         $superuser = auth()->user()->role->superuser;
 

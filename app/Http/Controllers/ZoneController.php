@@ -14,10 +14,9 @@ use App\Http\Resources\Zone\ZoneResource;
 
 class ZoneController extends Controller
 {
-    public function index() {
-
-    }
-
+    /**
+     * Adds a zone to a specific system.
+     */
     public function addZoneToSystem($id, Request $request) {
         $username = auth()->user()->username;
         $superuser = auth()->user()->role->superuser;
@@ -67,6 +66,9 @@ class ZoneController extends Controller
         }
     }
 
+    /**
+     * Edits a zone on a specific system.
+     */
     public function editZoneOnSystem($id, $zonePrefix, Request $request) {
         $username = auth()->user()->username;
         $superuser = auth()->user()->role->superuser;
@@ -121,6 +123,9 @@ class ZoneController extends Controller
         }
     }
 
+    /**
+     * Detaches a zone from a specific system and deletes the zone from the database.
+     */
     public function removeZoneFromSystem($id, $zonePrefix, Request $request) {
         $superuser = auth()->user()->role->superuser;
 

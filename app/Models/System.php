@@ -6,7 +6,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 use App\Models\Event;
+use App\Models\EventsHistory;
 use App\Models\Machine;
+use App\Models\Rule;
 use App\Models\Version;
 use App\Models\Zone;
 
@@ -21,9 +23,19 @@ class System extends Model
         return $this->hasMany(Event::class);
     }
 
+    public function eventhistory()
+    {
+        return $this->hasMany(EventsHistory::class);
+    }
+
     public function machine()
     {
         return $this->belongsTo(Machine::class);
+    }
+
+    public function rules()
+    {
+        return $this->hasMany(Rule::class);
     }
 
     public function versions()

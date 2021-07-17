@@ -1,26 +1,28 @@
 <?php
-//done
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Log;
 
 use App\Models\Machine;
 use App\Http\Resources\Machine\MachineResource;
 use App\Http\Resources\Machine\MachineCollection;
 use App\Http\Resources\System\SystemCollection;
 
+
 class MachineController extends Controller
 {
+    /**
+     * Returns all machines.
+     */
     public function index(Request $request) {
         $machines = Machine::all();
         return new MachineCollection($machines);
     }
 
     /**
-     * Return a specific record.
+     * Returns a specific machine using its name.
      */
     public function showMachine($name, Request $request) {
         try {
@@ -31,6 +33,9 @@ class MachineController extends Controller
         }
     }
 
+    /**
+     * Returns all systems contained in a machine.
+     */
     public function showSystemsOnMachine($name, Request $request) {
         try {
             $machine = Machine::where('name', $name)->firstOrFail();
@@ -42,7 +47,7 @@ class MachineController extends Controller
     }
 
     /**
-     * Creates a new record. A non-blank 'name' key is required to
+     * Creates a new machine. A non-blank 'name' key is required to
      * execute the function.
      */
     public function createMachine(Request $request) {
@@ -85,7 +90,7 @@ class MachineController extends Controller
     }
 
     /**
-     * Edits an existing record. A non-blank 'name' key
+     * Edits an existing machine. A non-blank 'name' key
      * is required to execute the function.
      */
     public function editMachine($name, Request $request) {
@@ -128,6 +133,9 @@ class MachineController extends Controller
         }
     }
 
+    /**
+     * Deletes a specific machine.
+     */
     public function deleteMachine($name, Request $request) {
         $superuser = auth()->user()->role->superuser;
 
