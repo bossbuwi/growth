@@ -15,20 +15,29 @@ return [
     |
     */
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+    'paths' => ['api/*'],
 
-    'allowed_methods' => ['*'],
+    'allowed_methods' => ['GET, POST, PUT, PATCH, DELETE, OPTIONS'],
 
     'allowed_origins' => ['*'],
 
     'allowed_origins_patterns' => [],
 
-    'allowed_headers' => ['*'],
+    'allowed_headers' => [
+        'Authorization', 'Accept', 'Origin',
+        'DNT', 'X-CustomHeader', 'Keep-Alive',
+        'User-Agent', 'X-Requested-With', 'If-Modified-Since',
+        'Cache-Control', 'Content-Type', 'Content-Range',
+        'Range', 'Access-Control-Allow-Origin'
+    ],
 
-    'exposed_headers' => [],
+    'exposed_headers' => [
+        'Accept', 'Authorization', 'Origin',
+        'Content-Type', 'X-Requested-With', 'Content-Disposition', 'Access-Control-Allow-Origin'
+    ],
 
     'max_age' => 0,
 
-    'supports_credentials' => false,
+    'supports_credentials' => true,
 
 ];

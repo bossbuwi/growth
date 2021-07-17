@@ -1,5 +1,5 @@
 # growth
- Growth is inevitable.
+ _Growth is inevitable._
 
 Setting up a working backend, be it for development or production, is difficult. As such, the steps written below needs to be followed in the correct order for the setup to be as painless and smooth as possible. A working knowledge of common software development terms like _text editor_ and _root folder_ will help immensely.
 
